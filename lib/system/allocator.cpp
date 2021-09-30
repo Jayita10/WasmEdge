@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
+
 #include "system/allocator.h"
+
 #include "common/config.h"
 #include "common/defines.h"
 #include "common/errcode.h"
+
 #include <cassert>
 #include <cctype>
 #include <cstdlib>
@@ -203,7 +206,7 @@ bool Allocator::set_chunk_readable(uint8_t *Pointer, uint64_t Size) noexcept {
 }
 
 bool Allocator::set_chunk_readable_writable(uint8_t *Pointer,
-                                       uint64_t Size) noexcept {
+                                            uint64_t Size) noexcept {
 #if defined(HAVE_MMAP)
   return mprotect(Pointer, Size, PROT_READ | PROT_WRITE) == 0;
 #elif WASMEDGE_OS_WINDOWS

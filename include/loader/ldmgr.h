@@ -15,7 +15,7 @@
 #include "common/errcode.h"
 #include "common/filesystem.h"
 #include "common/types.h"
-#include "shared_library.h"
+#include "loader/shared_library.h"
 
 #include <string_view>
 #include <vector>

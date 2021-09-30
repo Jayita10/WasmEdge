@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
+
 #include "loader/shared_library.h"
+
 #include "ast/section.h"
-#include "common/defines.h"
-#include "common/log.h"
 #include "system/allocator.h"
 
 #if WASMEDGE_OS_WINDOWS
