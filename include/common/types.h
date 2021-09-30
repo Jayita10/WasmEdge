@@ -281,5 +281,99 @@ template <typename T> inline T &retrieveExternRef(const ExternRef &Val) {
 
 /// <<<<<<<< Functions to retrieve reference inners <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+/// >>>>>>>> WASM data structure >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+/// Limit definition.
+struct Limit {
+  /// Limit type enumeration class.
+  enum class LimitType : uint8_t { HasMin = 0x00, HasMinMax = 0x01 };
+
+  Limit() noexcept : Type(LimitType::HasMin), Min(0U), Max(0U) {}
+  Limit(uint32_t MinVal) noexcept
+      : Type(LimitType::HasMin), Min(MinVal), Max(MinVal) {}
+  Limit(uint32_t MinVal, uint32_t MaxVal) noexcept
+      : Type(LimitType::HasMinMax), Min(MinVal), Max(MaxVal) {}
+
+  bool hasMax() const { return Type == LimitType::HasMinMax; }
+
+  /// \name Data of Limit.
+  /// @{
+  LimitType Type;
+  uint32_t Min;
+  uint32_t Max;
+  /// @}
+};
+
+/// Function type wrapper for symbols.
+using FTypeWrapper = void(void *ExecCtx, void *Function, const ValVariant *Args,
+                          ValVariant *Rets);
+
+/// FunctionType definition.
+struct FunctionType {
+  FunctionType() = default;
+  FunctionType(Span<const ValType> Params, Span<const ValType> Returns)
+      : ParamTypes(Params.begin(), Params.end()),
+        ReturnTypes(Returns.begin(), Returns.end()) {}
+
+  friend bool operator==(const FunctionType &LHS,
+                         const FunctionType &RHS) noexcept {
+    return LHS.ParamTypes == RHS.ParamTypes &&
+           LHS.ReturnTypes == RHS.ReturnTypes;
+  }
+
+  friend bool operator!=(const FunctionType &LHS,
+                         const FunctionType &RHS) noexcept {
+    return !(LHS == RHS);
+  }
+
+  /// \name Data of FunctionType.
+  /// @{
+  std::vector<ValType> ParamTypes;
+  std::vector<ValType> ReturnTypes;
+  Symbol<FTypeWrapper> TypeSymbol;
+  /// @}
+};
+
+/// MemoryType definition.
+struct MemoryType {
+  MemoryType() noexcept = default;
+  MemoryType(uint32_t MinVal) noexcept : MemoryLim(MinVal) {}
+  MemoryType(uint32_t MinVal, uint32_t MaxVal) noexcept
+      : MemoryLim(MinVal, MaxVal) {}
+
+  /// \name Data of MemoryType.
+  /// @{
+  Limit MemoryLim;
+  /// @}
+};
+
+/// TableType definition.
+struct TableType {
+  TableType() noexcept : Type(RefType::FuncRef), TableLim() {}
+  TableType(RefType RType, uint32_t MinVal) noexcept
+      : Type(RType), TableLim(MinVal) {}
+  TableType(RefType RType, uint32_t MinVal, uint32_t MaxVal) noexcept
+      : Type(RType), TableLim(MinVal, MaxVal) {}
+
+  /// \name Data of TableType.
+  /// @{
+  RefType Type;
+  Limit TableLim;
+  /// @}
+};
+
+/// GlobalType definition.
+struct GlobalType {
+  GlobalType() noexcept : Type(ValType::I32), Mut(ValMut::Const) {}
+  GlobalType(ValType VType, ValMut VMut) noexcept : Type(VType), Mut(VMut) {}
+
+  /// \name Data of GlobalType.
+  /// @{
+  ValType Type;
+  ValMut Mut;
+  /// @}
+};
+
+/// <<<<<<<< WASM data structure <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 } // namespace WasmEdge
